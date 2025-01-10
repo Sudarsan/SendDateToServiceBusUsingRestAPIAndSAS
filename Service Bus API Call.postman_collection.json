@@ -82,7 +82,7 @@
 					},
 					{
 						"key": "message_type",
-						"value": "TradeInvoice",
+						"value": "Test Message",
 						"type": "text"
 					},
 					{
