@@ -1,0 +1,121 @@
+{
+	"info": {
+		"name": "Service Bus API Call",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		},
+	"item": [
+		{
+			"name": "Sending Message to Service Bus Via REST API Call",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"const sharedKeyName = \"<Add the Shared Access Key Name>\"\r",
+							"const sharedKey = \"<Add the Shared Access Key Value>\"\r",
+							"const sbNameSpace = \"<Add the Service Bus NameSpace Here>\"\r",
+							"const topicOrQueueName = \"<Add the Topic or Queue Name Here>\"\r",
+					        "var uri = \"https://{{sbNameSpace}}.servicebus.windows.net/{{topicOrQueueName}}\"\r",
+							"var uuid = require('uuid'); \r",
+							"var myUUID = uuid.v4(); \r",
+							"console.log(myUUID); \r",
+							"\r",
+							"\r",
+							"function createSharedAccessToken(uri, saName, saKey) { \r",
+							"    if (!uri || !saName || !saKey) { \r",
+							"            throw \"Missing required parameter\"; \r",
+							"        } \r",
+							"    var encoded = encodeURIComponent(uri); \r",
+							"    var now = new Date(); \r",
+							"    var week = 60*60*24*7;\r",
+							"    var ttl = Math.round(now.getTime() / 1000) + week;\r",
+							"    var signature = encoded + '\\n' + ttl;\r",
+							"    const hash = CryptoJS.HmacSHA256(signature, saKey).toString(CryptoJS.enc.Base64)\r",
+							"    return 'SharedAccessSignature sr=' + encoded + '&sig=' +  \r",
+							"        encodeURIComponent(hash) + '&se=' + ttl + '&skn=' + saName; \r",
+							"}\r",
+							"\r",
+							"// Set broker properties e.g. sessionId\r",
+							"const brokerProperties = {\r",
+							"    'SessionId':'123',\r",
+							"    'CorrelationId': myUUID\r",
+							"}\r",
+							"\r",
+							"// Set broker proerties variable\r",
+							"pm.variables.set(\"broker_properties\", JSON.stringify(brokerProperties));\r",
+							"\r",
+							"// Set access token variable\r",
+							"pm.variables.set('access_token', createSharedAccessToken(uri, sharedKeyName, sharedKey));\r",
+							"\r",
+							"// Set message Id variable\r",
+							"pm.variables.set(\"message_id\", myUUID);\r",
+							"\r",
+							"// Set Topic or Queue Name\r",
+							"pm.variables.set(\"SbNameSpace\", sbNameSpace);\r",
+							"\r",
+							"// Set Topic or Queue Name\r",
+							"pm.variables.set(\"QueueOrTopicName\", topicOrQueueName);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "{{access_token}}",
+						"type": "text"
+					},
+					{
+						"key": "Content-Type",
+						"value": "",
+						"type": "text",
+						"disabled": true
+					},
+					{
+						"key": "BrokerProperties",
+						"value": "{{broker_properties}}",
+						"type": "text"
+					},
+					{
+						"key": "message_type",
+						"value": "TradeInvoice",
+						"type": "text"
+					},
+					{
+						"key": "message_id",
+						"value": "{{message_id}}",
+						"type": "text"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "Sending Data to Service Bus",
+					"options": {
+						"raw": {
+							"language": "xml"
+						}
+					}
+				},
+				"url": {
+					"raw": "https://{{SbNameSpace}}.servicebus.windows.net/{{QueueOrTopicName}}/messages",
+					"protocol": "https",
+					"host": [
+						"{{SbNameSpace}}",
+						"servicebus",
+						"windows",
+						"net"
+					],
+					"path": [
+						"{{QueueOrTopicName}}",
+						"messages"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
